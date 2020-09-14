@@ -1,5 +1,5 @@
 import test, { ExecutionContext } from 'ava';
-import { badRequest, internal, unauthorized, paymentRequired, forbidden, notFound, methodNotAllowed, notAcceptable, proxyAuthRequired, clientTimeout, conflict, resourceGone, lengthRequired, preconditionFailed, entityTooLarge, uriTooLong, unsupportedMediaType, rangeNotSatisfiable, expectationFailed, teapot, badData, locked, failedDependency, tooEarly, preconditionRequired, tooManyRequests, illegal, notImplemented, badGateway, serverUnavailable, gatewayTimeout } from './http-errors';
+import { badRequest, internal, unauthorized, paymentRequired, forbidden, notFound, methodNotAllowed, notAcceptable, proxyAuthRequired, clientTimeout, conflict, resourceGone, lengthRequired, preconditionFailed, entityTooLarge, uriTooLong, unsupportedMediaType, rangeNotSatisfiable, expectationFailed, teapot, badData, locked, failedDependency, tooEarly, preconditionRequired, tooManyRequests, illegal, notImplemented, badGateway, serverUnavailable, gatewayTimeout, serverError } from './http-errors';
 import HttpError, { HttpErrorResponse } from './http-error';
 
 const factories = [
@@ -29,6 +29,7 @@ const factories = [
 	{ factory: preconditionRequired, statusCode: 428, name: 'PreconditionRequiredError', errorMessage: 'Precondition Required' },
 	{ factory: tooManyRequests, statusCode: 429, name: 'TooManyRequestsError', errorMessage: 'Too Many Requests' },
 	{ factory: illegal, statusCode: 451, name: 'IllegalError', errorMessage: 'Unavailable For Legal Reasons' },
+	{ factory: serverError, statusCode: 500, name: 'InternalError', errorMessage: 'Internal Server Error' },
 	{ factory: internal, statusCode: 500, name: 'InternalError', errorMessage: 'Internal Server Error' },
 	{ factory: notImplemented, statusCode: 501, name: 'NotImplementedError', errorMessage: 'Not Implemented' },
 	{ factory: badGateway, statusCode: 502, name: 'BadGatewayError', errorMessage: 'Bad Gateway' },
