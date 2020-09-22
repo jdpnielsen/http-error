@@ -97,6 +97,17 @@ test('should JSON.stringify correctly', t => {
 	t.is(JSON.stringify(childError), '{"statusCode":500,"error":"Internal Server Error","message":"ChildError","info":{"bar":"baz"}}');
 });
 
+test('should have a static .isCError method which returns true when given a CError', t => {
+	const regularError = new Error('regularError');
+	const cError = new CError('cError');
+	const httpError = new HttpError(500, 'httpError');
+
+	t.is(CError.isCError(null), false, 'handles null');
+	t.is(CError.isCError(regularError), false, 'handles Error');
+	t.is(CError.isCError(cError), true, 'handles CError');
+	t.is(CError.isCError(httpError), true, 'handles httpError');
+});
+
 test('should have a static .cause which returns the expected cause', t => {
 	const parentError = new Error('ParentError');
 	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, parentError);
