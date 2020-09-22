@@ -47,7 +47,7 @@
 		"node": ">=14.3"
 	},
 	"dependencies": {
-		"@jdpnielsen/contextual-error": "^1.1.0"
+		"@jdpnielsen/contextual-error": "^1.2.0"
 	},
 	"devDependencies": {
 		"@bitjson/npm-scripts-info": "^1.0.0",
