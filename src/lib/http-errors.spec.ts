@@ -1,6 +1,7 @@
 import test, { ExecutionContext } from 'ava';
 import { badRequest, internal, unauthorized, paymentRequired, forbidden, notFound, methodNotAllowed, notAcceptable, proxyAuthRequired, clientTimeout, conflict, resourceGone, lengthRequired, preconditionFailed, entityTooLarge, uriTooLong, unsupportedMediaType, rangeNotSatisfiable, expectationFailed, teapot, badData, locked, failedDependency, tooEarly, preconditionRequired, tooManyRequests, illegal, notImplemented, badGateway, serverUnavailable, gatewayTimeout, serverError } from './http-errors';
-import HttpError, { HttpErrorResponse } from './http-error';
+import { HttpError, HttpErrorResponse } from './http-error';
+import { CError } from '@jdpnielsen/contextual-error';
 
 const factories = [
 	{ factory: badRequest, statusCode: 400, name: 'BadRequestError', errorMessage: 'Bad Request' },
@@ -69,10 +70,18 @@ function causeMacro(t: ExecutionContext, input: typeof factories[number] & { cau
 }
 causeMacro.title = titleBuilder;
 
+function isHttpErrorMacro(t: ExecutionContext, input: typeof factories[number]) {
+	const error = input.factory(input.errorMessage);
+	t.is(CError.isCError(error), true);
+	t.is(HttpError.isHttpError(error), true);
+}
+isHttpErrorMacro.title = titleBuilder;
+
 for (const error of factories) {
 	test('should build expected response', buildsResponseMacro, error, { statusCode: error.statusCode, error: error.errorMessage });
 	test('should stringify correctly', stringifyMacro, error, `${error.name}: ${error.errorMessage}`);
 	test('should handle public info', publicInfoMacro, Object.assign({ info: { foo: 'bar' }, message: 'testing' }, error), { statusCode: error.statusCode, error: error.errorMessage, message: 'testing', info: { foo: 'bar' } });
 	const err = new Error('testing');
 	test('should handle cause', causeMacro, Object.assign({ cause: err }, error), err);
+	test('should be a HttpError', isHttpErrorMacro, error);
 }

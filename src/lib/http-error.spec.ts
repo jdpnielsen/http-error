@@ -108,6 +108,17 @@ test('should have a static .isCError method which returns true when given a CErr
 	t.is(CError.isCError(httpError), true, 'handles httpError');
 });
 
+test('should have a static .isHttpError method which returns true when given a CError', t => {
+	const regularError = new Error('regularError');
+	const cError = new CError('cError');
+	const httpError = new HttpError(500, 'httpError');
+
+	t.is(HttpError.isHttpError(null), false, 'handles null');
+	t.is(HttpError.isHttpError(regularError), false, 'handles Error');
+	t.is(HttpError.isHttpError(cError), false, 'handles CError');
+	t.is(HttpError.isHttpError(httpError), true, 'handles httpError');
+});
+
 test('should have a static .cause which returns the expected cause', t => {
 	const parentError = new Error('ParentError');
 	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, parentError);

@@ -7,6 +7,8 @@ export type HttpErrorResponse = {
 	info?: Info,
 };
 
+export const HTTPERROR_SYMBOL = Symbol.for('http-error/httperror');
+
 export class HttpError extends WError {
 	public readonly name: string = 'HttpError';
 	public readonly statusCode: number;
@@ -14,6 +16,7 @@ export class HttpError extends WError {
 
 	constructor(statusCode: number, error: string, message?: string, publicInfo?: Info, cause?: Error, options?: Options) {
 		super(message || error, cause, options);
+		Object.defineProperty(this, HTTPERROR_SYMBOL, { value: true });
 
 		if (options?.name) {
 			this.name = options.name;
@@ -36,6 +39,10 @@ export class HttpError extends WError {
 
 	public toJSON(): HttpErrorResponse {
 		return this.response;
+	}
+
+	public static isHttpError(obj: unknown): boolean {
+		return (obj as { [HTTPERROR_SYMBOL]?: boolean })?.[HTTPERROR_SYMBOL] != null;
 	}
 }
 
