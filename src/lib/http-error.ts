@@ -41,7 +41,7 @@ export class HttpError extends WError {
 		return this.response;
 	}
 
-	public static isHttpError(obj: unknown): boolean {
+	public static isHttpError(obj: unknown): obj is HttpError {
 		return (obj as { [HTTPERROR_SYMBOL]?: boolean })?.[HTTPERROR_SYMBOL] != null;
 	}
 }
