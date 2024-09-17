@@ -66,7 +66,7 @@ function causeMacro(t: ExecutionContext, input: typeof factories[number] & { cau
 	const error = input.factory(input.errorMessage, {
 		cause: input.cause,
 	});
-	t.deepEqual(HttpError.cause(error), expected);
+	t.deepEqual(HttpError.getCause(error), expected);
 }
 causeMacro.title = titleBuilder;
 

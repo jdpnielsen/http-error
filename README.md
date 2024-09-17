@@ -1,6 +1,6 @@
 # Http Error: rich http errors
 
-[![Build Status](https://travis-ci.org/jdpnielsen/http-error.svg?branch=master)](https://travis-ci.org/jdpnielsen/http-error)
+![NPM Version](https://img.shields.io/npm/v/%40jdpnielsen%2Fhttp-error)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 The Http Error module is an extension of [Contextual Error](https://github.com/jdpnielsen/contextual-error), inspired by Hapi's [Boom](git@github.com:hapijs/boom.git).
@@ -127,10 +127,11 @@ import HttpError from '@jdpnielsen/http-error';
 import { Info } from '@jdpnielsen/contextual-error';
 
 export function custom(message?: string, input?: { cause?: Error, info?: Info, publicInfo?: Info }): HttpError {
-	return new HttpError(500, 'Custom', message, input?.publicInfo, input?.cause, {
-		name: 'customError',
+	return new HttpError(500, 'Custom', message, input?.publicInfo, {
+    name: 'customError',
 		constructorOpt: custom,
 		info: input?.info,
+    cause: input?.cause,
 	});
 }
 ```

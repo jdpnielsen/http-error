@@ -14,8 +14,8 @@ export class HttpError extends WError {
 	public readonly statusCode: number;
 	private response: HttpErrorResponse;
 
-	constructor(statusCode: number, error: string, message?: string, publicInfo?: Info, cause?: Error, options?: Options) {
-		super(message || error, cause, options);
+	constructor(statusCode: number, error: string, message?: string, publicInfo?: Info, options?: Options) {
+		super(message || error, options);
 		Object.defineProperty(this, HTTPERROR_SYMBOL, { value: true });
 
 		if (options?.name) {

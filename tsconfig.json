@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "ES2022",
     "outDir": "build/main",
     "rootDir": "src",
     "moduleResolution": "node",
@@ -26,7 +26,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
 
-    "lib": ["es2017"],
+    "lib": ["ES2022"],
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],

@@ -52,7 +52,7 @@ test('should build an http friendly error', t => {
 
 test('should accept an Error as cause', t => {
 	const parentError = new Error('ParentError');
-	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, parentError);
+	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, { cause: parentError });
 
 	t.is(childError.message, `ChildError`, 'builds correct message');
 	t.is((childError as any).cause, parentError, 'has expected cause');
@@ -60,15 +60,23 @@ test('should accept an Error as cause', t => {
 
 test('should accept a CError as cause', t => {
 	const parentError = new CError('ParentError');
-	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, parentError);
+	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, { cause: parentError });
+
+	t.is(childError.message, `ChildError`, 'builds correct message');
+	t.is((childError as any).cause, parentError, 'has expected cause');
+});
+
+test('should accept a HttpError as cause', t => {
+	const parentError = new HttpError(400, 'ParentError');
+	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, { cause: parentError });
 
 	t.is(childError.message, `ChildError`, 'builds correct message');
 	t.is((childError as any).cause, parentError, 'has expected cause');
 });
 
 test('should accept an options object', t => {
-	const uncausedErr = new CError('uncausedErr', undefined, { info: { text: '_uncausedErr_', fromUncaused: true }, name: 'UncausedError' });
-	const causedErr = new HttpError(500, 'Internal Server Error', 'causedErr', undefined, uncausedErr, { info: { text: '_causedErr_', fromCaused: true }, name: 'CausedError' });
+	const uncausedErr = new CError('uncausedErr', { info: { text: '_uncausedErr_', fromUncaused: true }, name: 'UncausedError' });
+	const causedErr = new HttpError(500, 'Internal Server Error', 'causedErr', undefined, { cause: uncausedErr, info: { text: '_causedErr_', fromCaused: true }, name: 'CausedError' });
 
 	t.is(uncausedErr.name, `UncausedError`, 'sets correct name');
 	t.is(causedErr.name, `CausedError`, 'sets correct name');
@@ -85,14 +93,14 @@ test('should accept an options object', t => {
 
 test('should stringify correctly', t => {
 	const parentError = new CError('ParentError');
-	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, parentError, { info: { foo: 'bar' } });
+	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, { cause: parentError, info: { foo: 'bar' } });
 
 	t.is(childError.toString(), 'HttpError: ChildError');
 });
 
 test('should JSON.stringify correctly', t => {
 	const parentError = new CError('ParentError');
-	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', { bar: 'baz' }, parentError, { info: { foo: 'bar' } });
+	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', { bar: 'baz' }, { cause: parentError, info: { foo: 'bar' } });
 
 	t.is(JSON.stringify(childError), '{"statusCode":500,"error":"Internal Server Error","message":"ChildError","info":{"bar":"baz"}}');
 });
@@ -119,18 +127,18 @@ test('should have a static .isHttpError method which returns true when given a C
 	t.is(HttpError.isHttpError(httpError), true, 'handles httpError');
 });
 
-test('should have a static .cause which returns the expected cause', t => {
+test('should have a static .getCause which returns the expected cause', t => {
 	const parentError = new Error('ParentError');
-	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, parentError);
+	const childError = new HttpError(500, 'Internal Server Error', 'ChildError', undefined, { cause: parentError});
 
-	t.is(HttpError.cause(parentError), null, 'handles regular errors');
-	t.is(HttpError.cause(childError), parentError, 'returns cause');
+	t.is(HttpError.getCause(parentError), null, 'handles regular errors');
+	t.is(HttpError.getCause(childError), parentError, 'returns cause');
 });
 
 test('should have a static .info which returns the info object', t => {
 	const parentError = new Error('ParentError');
-	const childError = new CError('ChildError', parentError, { info: { foo: 'bar' } });
-	const grandChildError = new HttpError(500, 'Internal Server Error', 'GrandChildError', undefined, childError, { info: { bar: 'baz' } });
+	const childError = new CError('ChildError', { cause: parentError, info: { foo: 'bar' } });
+	const grandChildError = new HttpError(500, 'Internal Server Error', 'GrandChildError', undefined, { cause: childError, info: { bar: 'baz' } });
 
 	t.deepEqual(HttpError.info(parentError), {}, 'handles regular errors');
 	t.deepEqual(HttpError.info(childError), { foo: 'bar' }, 'returns info');
@@ -139,8 +147,8 @@ test('should have a static .info which returns the info object', t => {
 
 test('should have a static .fullStack which returns the combined stack trace', t => {
 	const parentError = new Error('ParentError');
-	const childError = new CError('ChildError', parentError, { info: { foo: 'bar' } });
-	const grandChildError = new HttpError(500, 'Internal Server Error', 'GrandChildError', undefined, childError, { info: { bar: 'baz' } });
+	const childError = new CError('ChildError', { cause: parentError, info: { foo: 'bar' } });
+	const grandChildError = new HttpError(500, 'Internal Server Error', 'GrandChildError', undefined, { cause: childError, info: { bar: 'baz' } });
 
 	const expectedParentStack = helperStack('ParentError', 'Error');
 	const expectedChildStack = helperStack('ChildError: ParentError', 'CError') + '\ncaused by: ' + expectedParentStack;
@@ -153,9 +161,9 @@ test('should have a static .fullStack which returns the combined stack trace', t
 
 test('should have a static .findCauseByName', t => {
 	const parentError = new Error('ParentError');
-	const childError = new CError('ChildError', parentError);
-	const grandChildError = new CError('GrandChildError', childError, { name: 'CustomErrorName' });
-	const finalError = new HttpError(500, 'Internal Server Error', 'finalError', undefined, grandChildError);
+	const childError = new CError('ChildError', { cause: parentError });
+	const grandChildError = new CError('GrandChildError', { cause: childError, name: 'CustomErrorName' });
+	const finalError = new HttpError(500, 'Internal Server Error', 'finalError', undefined, { cause: grandChildError });
 
 	t.is(HttpError.findCauseByName(grandChildError, 'Error'), parentError, 'finds regular Error');
 	t.is(HttpError.findCauseByName(grandChildError, 'CError'), childError, 'finds CError');
@@ -166,9 +174,9 @@ test('should have a static .findCauseByName', t => {
 
 test('should have a static .hasCauseWithName', t => {
 	const parentError = new Error('ParentError');
-	const childError = new CError('ChildError', parentError);
-	const grandChildError = new CError('GrandChildError', childError, { name: 'CustomErrorName' });
-	const finalError = new HttpError(500, 'Internal Server Error', 'finalError', undefined, grandChildError);
+	const childError = new CError('ChildError', { cause: parentError });
+	const grandChildError = new CError('GrandChildError', { cause: childError, name: 'CustomErrorName' });
+	const finalError = new HttpError(500, 'Internal Server Error', 'finalError', undefined, { cause: grandChildError });
 
 	t.is(HttpError.hasCauseWithName(grandChildError, 'Error'), true, 'finds regular Error');
 	t.is(HttpError.hasCauseWithName(grandChildError, 'CError'), true, 'finds CError');
