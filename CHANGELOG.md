@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.0-0](https://github.com/jdpnielsen/http-error/compare/v1.2.2-0...v2.0.0-0) (2024-09-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* HttpError's static .cause() method was
+changed to .getCause().
+Constructor arguments were consolidated, so there are now two optional arguments instead.
+Target ES version is now ES2022
+
+### Features
+
+* update to support contextual-error v2.0.0 ([157fff6](https://github.com/jdpnielsen/http-error/commit/157fff6b2aa7008a21e0b2d309a10c076c1ba023))
+
 ## [1.2.2-0](https://github.com/jdpnielsen/http-error/compare/v1.2.1...v1.2.2-0) (2024-09-17)
 
 ### [1.2.1](https://github.com/jdpnielsen/http-error/compare/v1.2.0...v1.2.1) (2021-05-07)
